@@ -18,28 +18,33 @@
 <body>
 <h1>VSync</h1>
 
-<video-js id="my_video" class="vjs-default-skin" controls preload="auto" width="640" height="268">
+<video-js id="my_video" class="vjs-default-skin" controls preload="auto" width="640" height="268"
+          webkit-playsinline='true'
+          playsinline='true'>
 
 </video-js>
 <br/>
 <button name="login" id="user01" style="height:60px;width:100px;display:inline-block;">登录user01</button>
-<button name="login" id="user02" style="height:60px;width:100px;display:inline-block;">登录user02</button><br/>
+<button name="login" id="user02" style="height:60px;width:100px;display:inline-block;">登录user02</button>
+<br/>
 <br/>
 视频地址：
 <input type="text" id="url" style="height:20px;width:200px;display:inline-block;">
-<button id="load">获取视频</button><br/>
+<button id="load">获取视频</button>
+<br/>
 <br/>
 
-<button id="url_sync" style="height:60px;width:100px;display:inline-block;">同步地址</button>
-<button id="time_sync" style="height:60px;width:100px;display:inline-block;">同步时间</button><br/>
+<button id="url_sync" style="height:60px;width:100px;display:inline-block;">发送地址</button>
+<button id="time_sync" style="height:60px;width:100px;display:inline-block;">发送进度</button>
+<br/>
 
 <script>
 
 
     const myvideo = videojs('my_video');
 
-    $(document).ready(function(){
-        $("#load").click(function (){
+    $(document).ready(function () {
+        $("#load").click(function () {
             var src = $("#url").val();
             console.log(src)
             myvideo.src(src);
@@ -86,20 +91,29 @@
 
     let tim;
 
-    $(document).ready(function(){
-        $("#user01").click(function (){login('user01')});
+    $(document).ready(function () {
+        $("#user01").click(function () {
+            login('user01')
+        });
     });
-    $(document).ready(function(){
-        $("#user02").click(function (){login('user02')});
+    $(document).ready(function () {
+        $("#user02").click(function () {
+            login('user02')
+        });
     });
 
-    $(document).ready(function(){
-        $("#time_sync").click(function (){send("201:" + myvideo.currentTime())});
+    $(document).ready(function () {
+        $("#time_sync").click(function () {
+            send("201:" + myvideo.currentTime())
+        });
     });
-    $(document).ready(function(){
-        $("#url_sync").click(function (){send("301:" + myvideo.src())});
+    $(document).ready(function () {
+        $("#url_sync").click(function () {
+            send("301:" + myvideo.src())
+        });
     });
-    function login(userID){
+
+    function login(userID) {
 
         let options = {
             SDKAppID: 1400582377 // 接入时需要将0替换为您的即时通信 IM 应用的 SDKAppID
@@ -125,14 +139,14 @@
 
         // 开始登录
         var userSig;
-        if (userID === 'user01'){
+        if (userID === 'user01') {
             userSig = 'eJwtzF0LgjAUxvHvcq5DzjbXVOiqEQRiUl11l7nkUObaNHqh756pl8-vgf8H9ukueBgHCfAAYTZsKs2tpTMN3HnjkE2PLy9Ha6mEhIWIMuJCqfExT0vO9C6l5Ig4akv13*ZCxCwMIz5VqOrDIhNN3N2XalW8c5d2*uS3m1qibTL9ys1BS1-5ml2jYr2A7w9DrTHB';
         }
-        if (userID === 'user02'){
+        if (userID === 'user02') {
             userSig = 'eJwtzEELgjAcBfDvsnPIf9O5FDp4qUOCgQrRTdnUP0uxacuIvnumHt-vPd6HZHHqWGVISJgDZLdklKobscKFn4MywLZmkLroe5QkpB4A3zNXiLVRU49Gzc45ZwCw6ojt33zXDagn2LYdsJ6PL488kyed8iZoy-vtnU*vrjpH4tiU1uJVG58KniR1EcOBfH9ZjzIL';
         }
 
-        let promise = tim.login({userID: userID, userSig:userSig});
+        let promise = tim.login({userID: userID, userSig: userSig});
         // let promise = tim.login({userID: 'root', userSig:'123'});
         promise.then(function (imResponse) {
             //隐藏登录按钮
@@ -151,7 +165,7 @@
     }
 
 
-    function listen(){
+    function listen() {
         tim.on(TIM.EVENT.SDK_READY, function (event) {
             // SDK ready 后接入侧才可以调用 sendMessage 等需要鉴权的接口，否则会提示失败！
             // event.name - TIM.EVENT.SDK_READY
@@ -159,9 +173,10 @@
         })
     }
 
-    function receive(){
+    function receive() {
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, re)
     }
+
     function re(event) {
         console.log('收到消息');
         // 收到推送的单聊、群聊、群提示、群系统通知的新消息，可通过遍历 event.data 获取消息列表数据并渲染到页面
@@ -205,7 +220,7 @@
         //201当前时间
         //202倍速 eg: 201:1.5
         //301同步地址
-        switch (message.payload.text.substr(0,3)){
+        switch (message.payload.text.substr(0, 3)) {
             case '101':
                 myvideo.play()
                 break
@@ -215,7 +230,7 @@
                 break
             case '201':
                 console.log(Math.abs(myvideo.currentTime() - message.payload.text.substr(4)))
-                if (Math.abs(myvideo.currentTime() - message.payload.text.substr(4)) > 1){
+                if (Math.abs(myvideo.currentTime() - message.payload.text.substr(4)) > 1) {
                     myvideo.currentTime(message.payload.text.substr(4))
                 }
                 break
@@ -263,7 +278,7 @@
     }
 
 
-    function send(text){
+    function send(text) {
 
         let message = tim.createTextMessage({
             to: '@TGS#1XSPLIQHJ',
@@ -286,9 +301,12 @@
             // 发送失败
             console.warn('sendMessage error:', imError);
         });
-        tim.off(TIM.EVENT.MESSAGE_RECEIVED,re)
-        setTimeout(function (){receive()},1000)
+        tim.off(TIM.EVENT.MESSAGE_RECEIVED, re)
+        setTimeout(function () {
+            receive()
+        }, 1000)
     }
+
     // send();
 </script>
 </body>
