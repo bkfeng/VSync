@@ -1,0 +1,8 @@
+{
+  "name": "VSync",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "tim-js-sdk": "^2.14.0"
+  }
+}

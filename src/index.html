@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <title>VSync</title>
+
+
+    <script src="./js/GenerateTestUserSig.js"></script>
+    <script src="./js/tim-js.js"></script>
+    <script src="./js/lib-generate-test-usersig.min.js"></script>
+
+    <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
+    <script src="https://unpkg.com/video.js/dist/video.js"></script>
+    <script src="https://unpkg.com/@videojs/http-streaming/dist/videojs-http-streaming.js"></script>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<h1>VSync</h1>
+
+<video-js id="my_video" class="vjs-default-skin" controls preload="auto" width="640" height="268">
+
+</video-js>
+
+<button id="user01">登录user01</button>
+<button id="user02">登录user02</button><br/>
+
+视频地址：
+<input type="text" id="url">
+<button id="load">获取视频</button><br/>
+
+<button id="url_sync">同步地址</button><br/>
+<button id="time_sync">同步时间</button><br/>
+
+<script>
+
+
+    const myvideo = videojs('my_video');
+
+    $(document).ready(function(){
+        $("#load").click(function (){
+            var src = $("#url").val();
+            console.log(src)
+            myvideo.src(src);
+        });
+    });
+
+    myvideo.on("ended", function () {
+        console.log("ended");
+    })
+
+    myvideo.on("pause", function () {
+        console.log("pause");
+        // setTimeout(function (){send('102')},500)
+        send('102')
+    })
+
+    myvideo.on("play", function () {
+        console.log("play");
+        // setTimeout(function (){send('101')},500)
+        send('101');
+    })
+
+    myvideo.on("volumechange", function () {
+        console.log("volumechange");
+    })
+
+    // myvideo.on("timeupdate",function(){
+    //     console.log("timeupdate");
+    // })
+
+    myvideo.on("seeked", function () {
+        console.log("seeked");
+    })
+
+    myvideo.on("seeking", function () {
+        console.log("seeking");
+        console.log(myvideo.currentTime());
+        send("201:" + myvideo.currentTime())
+    })
+</script>
+
+
+<script>
+
+    let tim;
+
+    $(document).ready(function(){
+        $("#user01").click(function (){login('user01')});
+    });
+    $(document).ready(function(){
+        $("#user02").click(function (){login('user02')});
+    });
+
+    $(document).ready(function(){
+        $("#time_sync").click(function (){send("201:" + myvideo.currentTime())});
+    });
+    $(document).ready(function(){
+        $("#url_sync").click(function (){send("301:" + myvideo.src())});
+    });
+    function login(userID){
+
+        let options = {
+            SDKAppID: 1400582377 // 接入时需要将0替换为您的即时通信 IM 应用的 SDKAppID
+        };
+        // 创建 SDK 实例，`TIM.create()`方法对于同一个 `SDKAppID` 只会返回同一份实例
+        tim = TIM.create(options); // SDK 实例通常用 tim 表示
+
+        // 设置 SDK 日志输出级别，详细分级请参见 <a href="https://web.sdk.qcloud.com/im/doc/zh-cn//SDK.html#setLogLevel">setLogLevel 接口的说明</a>
+        tim.setLogLevel(0); // 普通级别，日志量较多，接入时建议使用
+        // tim.setLogLevel(1); // release 级别，SDK 输出关键信息，生产环境时建议使用
+
+
+        //计算userSig
+        // let userSig = function genTestUserSig(userID){
+        //     var SDKAPPID = 1400582377;
+        //     var EXPIRETIME = 604800;
+        //     var SECRETKEY = '423f414a686f5775837fbece068725c0605d935bc54eccf2123c2068606aeead';
+        //
+        //     var generator = new window.LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME);
+        //     var userSig = generator.genTestUserSig(userID);
+        //     return userSig;
+        // }
+
+        // 开始登录
+        var userSig;
+        if (userID === 'user01'){
+            userSig = 'eJwtzF0LgjAUxvHvcq5DzjbXVOiqEQRiUl11l7nkUObaNHqh756pl8-vgf8H9ukueBgHCfAAYTZsKs2tpTMN3HnjkE2PLy9Ha6mEhIWIMuJCqfExT0vO9C6l5Ig4akv13*ZCxCwMIz5VqOrDIhNN3N2XalW8c5d2*uS3m1qibTL9ys1BS1-5ml2jYr2A7w9DrTHB';
+        }
+        if (userID === 'user02'){
+            userSig = 'eJwtzEELgjAcBfDvsnPIf9O5FDp4qUOCgQrRTdnUP0uxacuIvnumHt-vPd6HZHHqWGVISJgDZLdklKobscKFn4MywLZmkLroe5QkpB4A3zNXiLVRU49Gzc45ZwCw6ojt33zXDagn2LYdsJ6PL488kyed8iZoy-vtnU*vrjpH4tiU1uJVG58KniR1EcOBfH9ZjzIL';
+        }
+
+        let promise = tim.login({userID: userID, userSig:userSig});
+        // let promise = tim.login({userID: 'root', userSig:'123'});
+        promise.then(function (imResponse) {
+            console.log(imResponse.data); // 登录成功
+            if (imResponse.data.repeatLogin === true) {
+                // 标识账号已登录，本次登录操作为重复登录。v2.5.1 起支持
+                console.log(imResponse.data.errorInfo);
+            }
+        }).catch(function (imError) {
+            console.warn('login error:', imError); // 登录失败的相关信息
+        });
+
+        listen();
+        receive();
+    }
+
+
+    function listen(){
+        tim.on(TIM.EVENT.SDK_READY, function (event) {
+            // SDK ready 后接入侧才可以调用 sendMessage 等需要鉴权的接口，否则会提示失败！
+            // event.name - TIM.EVENT.SDK_READY
+            console.log('*************************')
+        })
+    }
+
+    function receive(){
+        tim.on(TIM.EVENT.MESSAGE_RECEIVED, re)
+    }
+    function re(event) {
+        console.log('收到消息');
+        // 收到推送的单聊、群聊、群提示、群系统通知的新消息，可通过遍历 event.data 获取消息列表数据并渲染到页面
+        // event.name - TIM.EVENT.MESSAGE_RECEIVED
+        // event.data - 存储 Message 对象的数组 - [Message]
+        const length = event.data.length
+        let message
+        for (let i = 0; i < length; i++) {
+            // Message 实例的详细数据结构请参考 Message
+            // 其中 type 和 payload 属性需要重点关注
+            // 从v2.6.0起，AVChatRoom 内的群聊消息，进群退群等群提示消息，增加了 nick（昵称） 和 avatar（头像URL） 属性，便于接入侧做体验更好的展示
+            // 前提您需要先调用 updateMyProfile 设置自己的 nick（昵称） 和 avatar（头像 URL），请参考 updateMyProfile 接口的说明
+            message = event.data[i]
+            switch (message.type) {
+                case TIM.TYPES.MSG_TEXT:
+                    // 收到了文本消息
+                    this._handleTextMsg(message)
+                    break
+                case TIM.TYPES.MSG_CUSTOM:
+                    // 收到了自定义消息
+                    this._handleCustomMsg(message)
+                    break
+                case TIM.TYPES.MSG_GRP_TIP:
+                    // 收到了群提示消息，如成员进群、群成员退群
+                    this._handleGroupTip(message)
+                    break
+                case TIM.TYPES.MSG_GRP_SYS_NOTICE:
+                    // 收到了群系统通知，通过 REST API 在群组中发送的系统通知请参考 在群组中发送系统通知 API
+                    this._handleGroupSystemNotice(message)
+                    break
+                default:
+                    break
+            }
+        }
+    }
+
+    function _handleTextMsg(message) {
+        // 详细数据结构请参考 TextPayload 接口的说明
+        //101播放
+        //102暂停
+        //201当前时间
+        //202倍速 eg: 201:1.5
+        //301同步地址
+        switch (message.payload.text.substr(0,3)){
+            case '101':
+                myvideo.play()
+                break
+            case '102':
+                // setTimeout(myvideo.pause(),1000)
+                myvideo.pause()
+                break
+            case '201':
+                console.log(Math.abs(myvideo.currentTime() - message.payload.text.substr(4)))
+                if (Math.abs(myvideo.currentTime() - message.payload.text.substr(4)) > 1){
+                    myvideo.currentTime(message.payload.text.substr(4))
+                }
+                break
+            case '301':
+                myvideo.src(message.payload.text.substr(4))
+                break
+        }
+
+        console.log(message.payload.text) // 文本消息内容
+    }
+
+    function _handleCustomMsg(message) {
+        // 详细数据结构请参考 CustomPayload 接口的说明
+        console.log(message.payload)
+    }
+
+    function _handleGroupTip(message) {
+        // 详细数据结构请参考 GroupTipPayload 接口的说明
+        switch (message.payload.operationType) {
+            case TIM.TYPES.GRP_TIP_MBR_JOIN: // 有成员加群
+                break
+            case TIM.TYPES.GRP_TIP_MBR_QUIT: // 有群成员退群
+                break
+            case TIM.TYPES.GRP_TIP_MBR_KICKED_OUT: // 有群成员被踢出群
+                break
+            case TIM.TYPES.GRP_TIP_MBR_SET_ADMIN: // 有群成员被设为管理员
+                break
+            case TIM.TYPES.GRP_TIP_MBR_CANCELED_ADMIN: // 有群成员被撤销管理员
+                break
+            case TIM.TYPES.GRP_TIP_GRP_PROFILE_UPDATED: // 群组资料变更
+                //从v2.6.0起支持群组自定义字段变更内容
+                // message.payload.newGroupProfile.groupCustomField
+                break
+            case TIM.TYPES.GRP_TIP_MBR_PROFILE_UPDATED: // 群成员资料变更，例如群成员被禁言
+                break
+            default:
+                break
+        }
+    }
+
+    function _handleGroupSystemNotice(message) {
+        // 详细数据结构请参考  GroupSystemNoticePayload 接口的说明
+        console.log(message.payload.userDefinedField) // 用户自定义字段。使用 RESTAPI 发送群系统通知时，可在该属性值中拿到自定义通知的内容。
+        // 用 REST API 发送群系统通知请参考 在群组中发送系统通知 API
+    }
+
+
+    function send(text){
+
+        let message = tim.createTextMessage({
+            to: '@TGS#1XSPLIQHJ',
+            conversationType: TIM.TYPES.CONV_GROUP,
+            // 消息优先级，用于群聊（v2.4.2起支持）。如果某个群的消息超过了频率限制，后台会优先下发高优先级的消息，详细请参考：https://cloud.tencent.com/document/product/269/3663#.E6.B6.88.E6.81.AF.E4.BC.98.E5.85.88.E7.BA.A7.E4.B8.8E.E9.A2.91.E7.8E.87.E6.8E.A7.E5.88.B6)
+            // 支持的枚举值：TIM.TYPES.MSG_PRIORITY_HIGH, TIM.TYPES.MSG_PRIORITY_NORMAL（默认）, TIM.TYPES.MSG_PRIORITY_LOW, TIM.TYPES.MSG_PRIORITY_LOWEST
+            // priority: TIM.TYPES.MSG_PRIORITY_NORMAL,
+            payload: {
+                text: text
+            },
+            // 消息自定义数据（云端保存，会发送到对端，程序卸载重装后还能拉取到，v2.10.2起支持）
+            // cloudCustomData: 'your cloud custom data'
+        });
+        // 2. 发送消息
+        let promise = tim.sendMessage(message);
+        promise.then(function (imResponse) {
+            // 发送成功
+            console.log(imResponse);
+        }).catch(function (imError) {
+            // 发送失败
+            console.warn('sendMessage error:', imError);
+        });
+        tim.off(TIM.EVENT.MESSAGE_RECEIVED,re)
+        setTimeout(function (){receive()},1000)
+    }
+    // send();
+</script>
+</body>
+</html>
