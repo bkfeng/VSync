@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>VSync</title>
 
-
     <script src="./js/GenerateTestUserSig.js"></script>
     <script src="./js/tim-js.js"></script>
     <script src="./js/lib-generate-test-usersig.min.js"></script>
@@ -18,11 +17,12 @@
 <body>
 <h1>VSync</h1>
 
-<video-js id="my_video" class="vjs-default-skin" controls preload="auto" width="640" height="268"
-          webkit-playsinline='true'
-          playsinline='true'>
-
+<video-js id="my_video" class="vjs-default-skin vjs-fluid vjs-big-play-centered"
+          poster="http://vjs.zencdn.net/v/oceans.png"
+          controls preload='auto'
+          webkit-playsinline='true'>
 </video-js>
+
 <br/>
 <button name="login" id="user01" style="height:60px;width:100px;display:inline-block;">登录user01</button>
 <button name="login" id="user02" style="height:60px;width:100px;display:inline-block;">登录user02</button>
@@ -39,7 +39,6 @@
 <br/>
 
 <script>
-
 
     const myvideo = videojs('my_video');
 
