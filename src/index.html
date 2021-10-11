@@ -21,16 +21,17 @@
 <video-js id="my_video" class="vjs-default-skin" controls preload="auto" width="640" height="268">
 
 </video-js>
-
-<button id="user01">登录user01</button>
-<button id="user02">登录user02</button><br/>
-
+<br/>
+<button name="login" id="user01" style="height:60px;width:100px;display:inline-block;">登录user01</button>
+<button name="login" id="user02" style="height:60px;width:100px;display:inline-block;">登录user02</button><br/>
+<br/>
 视频地址：
-<input type="text" id="url">
+<input type="text" id="url" style="height:20px;width:200px;display:inline-block;">
 <button id="load">获取视频</button><br/>
+<br/>
 
-<button id="url_sync">同步地址</button><br/>
-<button id="time_sync">同步时间</button><br/>
+<button id="url_sync" style="height:60px;width:100px;display:inline-block;">同步地址</button>
+<button id="time_sync" style="height:60px;width:100px;display:inline-block;">同步时间</button><br/>
 
 <script>
 
@@ -134,6 +135,8 @@
         let promise = tim.login({userID: userID, userSig:userSig});
         // let promise = tim.login({userID: 'root', userSig:'123'});
         promise.then(function (imResponse) {
+            //隐藏登录按钮
+            $("button[name='login']").hide();
             console.log(imResponse.data); // 登录成功
             if (imResponse.data.repeatLogin === true) {
                 // 标识账号已登录，本次登录操作为重复登录。v2.5.1 起支持
