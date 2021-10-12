@@ -18,5 +18,6 @@
     <orderEntry type="library" name="jquery" level="application" />
     <orderEntry type="library" name="@videojs/http-streaming" level="application" />
     <orderEntry type="library" name="layui" level="application" />
+    <orderEntry type="library" name="layui" level="application" />
   </component>
 </module>
