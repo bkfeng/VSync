@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>VSync</title>
 
+
+    <link rel="stylesheet" href="//unpkg.com/layui@2.6.8/dist/css/layui.css">
+    <script src="//unpkg.com/layui@2.6.8/dist/layui.js">
+
     <script src="./js/GenerateTestUserSig.js"></script>
     <script src="./js/tim-js.js"></script>
     <script src="./js/lib-generate-test-usersig.min.js"></script>
@@ -24,19 +28,45 @@
 </video-js>
 
 <br/>
-<button name="login" id="user01" style="height:60px;width:100px;display:inline-block;">登录user01</button>
-<button name="login" id="user02" style="height:60px;width:100px;display:inline-block;">登录user02</button>
+<button name="login" id="user01" type="button" class="layui-btn layui-btn-lg layui-btn-normal">登录user01</button>
+<button name="login" id="user02" type="button" class="layui-btn layui-btn-lg layui-btn-normal">登录user02</button>
 <br/>
 <br/>
 视频地址：
-<input type="text" id="url" style="height:20px;width:200px;display:inline-block;">
-<button id="load">获取视频</button>
+<input type="text" id="url" style="height:40px;width:200px;display:inline-block;">
+<button id="load" type="button" class="layui-btn layui-btn-lg layui-btn-normal">获取视频</button>
 <br/>
 <br/>
 
-<button id="url_sync" style="height:60px;width:100px;display:inline-block;">发送地址</button>
-<button id="time_sync" style="height:60px;width:100px;display:inline-block;">发送进度</button>
+<button id="url_sync" type="button" class="layui-btn layui-btn-lg layui-btn-normal">发送地址</button>
+<button id="time_sync" type="button" class="layui-btn layui-btn-lg layui-btn-normal">发送进度</button>
 <br/>
+<br/>
+<!--<form class="layui-form" action="">-->
+<!--    <div class="layui-form-item layui-form-text">-->
+<!--        <label class="layui-form-label">消息内容</label>-->
+<!--        <div class="layui-input-block">-->
+<!--            <textarea name="desc" placeholder="请输入内容" class="layui-textarea"></textarea>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="layui-form-item">-->
+<!--        <div class="layui-input-block">-->
+<!--            <button class="layui-btn layui-btn-lg layui-btn-normal" lay-submit lay-filter="formDemo">立即提交</button>-->
+<!--&lt;!&ndash;            <button type="reset" class="layui-btn layui-btn-primary">重置</button>&ndash;&gt;-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</form>-->
+<input type="text" id="message" style="height:40px;width:200px;display:inline-block;">
+<button id="test" type="button" class="layui-btn layui-btn-lg layui-btn-normal">发送消息</button>
+
+<script>
+    $(document).ready(function () {
+        $("#test").click(function () {
+            send('401:' + $("#message").val(),0)
+        });
+    });
+
+</script>
 
 <script>
 
@@ -56,13 +86,11 @@
 
     myvideo.on("pause", function () {
         console.log("pause");
-        // setTimeout(function (){send('102')},500)
         send('102')
     })
 
     myvideo.on("play", function () {
         console.log("play");
-        // setTimeout(function (){send('101')},500)
         send('101');
     })
 
@@ -82,6 +110,7 @@
         console.log("seeking");
         console.log(myvideo.currentTime());
         send("201:" + myvideo.currentTime())
+        myvideo.pause()
     })
 </script>
 
@@ -129,7 +158,7 @@
         // let userSig = function genTestUserSig(userID){
         //     var SDKAPPID = 1400582377;
         //     var EXPIRETIME = 604800;
-        //     var SECRETKEY = '423f414a686f5775837fbece068725c0605d935bc54eccf2123c2068606aeead';
+        //     var SECRETKEY = '';
         //
         //     var generator = new window.LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME);
         //     var userSig = generator.genTestUserSig(userID);
@@ -219,23 +248,30 @@
         //201当前时间
         //202倍速 eg: 201:1.5
         //301同步地址
+        //401聊天消息
         switch (message.payload.text.substr(0, 3)) {
             case '101':
                 myvideo.play()
+                layer.msg('播放')
                 break
             case '102':
                 // setTimeout(myvideo.pause(),1000)
                 myvideo.pause()
+                layer.msg('暂停')
                 break
             case '201':
                 console.log(Math.abs(myvideo.currentTime() - message.payload.text.substr(4)))
                 if (Math.abs(myvideo.currentTime() - message.payload.text.substr(4)) > 1) {
                     myvideo.currentTime(message.payload.text.substr(4))
+                    layer.msg('跳转到'+message.payload.text.substr(4))
                 }
                 break
             case '301':
                 myvideo.src(message.payload.text.substr(4))
+                layer.msg('收到视频地址，加载中')
                 break
+            case '401':
+                layer.msg(message.from + '说:' + message.payload.text.substr(4))
         }
 
         console.log(message.payload.text) // 文本消息内容
@@ -277,7 +313,7 @@
     }
 
 
-    function send(text) {
+    function send(text,time = 1000) {
 
         let message = tim.createTextMessage({
             to: '@TGS#1XSPLIQHJ',
@@ -303,7 +339,7 @@
         tim.off(TIM.EVENT.MESSAGE_RECEIVED, re)
         setTimeout(function () {
             receive()
-        }, 1000)
+        }, time)
     }
 
     // send();
