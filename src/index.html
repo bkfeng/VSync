@@ -34,18 +34,43 @@
 <br/>
 视频地址：
 <input type="text" id="url" style="height:40px;width:200px;display:inline-block;">
-<button id="load" type="button" class="layui-btn layui-btn-lg layui-btn-normal">获取视频</button>
-<br/>
-<br/>
-
-<button id="url_sync" type="button" class="layui-btn layui-btn-lg layui-btn-normal">发送地址</button>
-<button id="time_sync" type="button" class="layui-btn layui-btn-lg layui-btn-normal">发送进度</button>
+<br/><br/>
+<button id="load" type="button" class="layui-btn layui-btn layui-btn-normal">获取视频</button>
+<button id="url_sync" type="button" class="layui-btn layui-btn layui-btn-normal">发送地址</button>
+<button id="time_sync" type="button" class="layui-btn layui-btn layui-btn-normal">发送进度</button>
 <br/>
 <br/>
 
 <input type="text" id="message" style="height:40px;width:200px;display:inline-block;">
-<button id="test" type="button" class="layui-btn layui-btn-lg layui-btn-normal">发送消息</button>
-
+<button id="test" type="button" class="layui-btn layui-btn layui-btn-normal">发送消息</button>
+<br/><br/>
+<table class="layui-table" lay-even lay-skin="nob">
+    <colgroup>
+        <col width="10%">
+        <col width="20%">
+        <col>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>昵称</th>
+        <th>时间</th>
+        <th>内容</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>人生就像是一场修行</td>
+    </tr>
+    <tr>
+        <td>于千万人之中遇见你所遇见的人，于千万年之中，时间的无涯的荒野里…</td>
+    </tr>
+    </tbody>
+</table>
+<div>
+    收到消息：<div id="r_message"></div>
+    <p>123</p>
+    <p>123</p>
+</div>
 <script>
     $(document).ready(function () {
         $("#test").click(function () {
