@@ -21,11 +21,11 @@
 <body>
 <h1>VSync</h1>
 
-<video-js id="my_video" class="vjs-default-skin vjs-fluid vjs-big-play-centered"
+<video id="my_video" class="vjs-default-skin vjs-fluid vjs-big-play-centered"
           poster="http://vjs.zencdn.net/v/oceans.png"
           controls preload='auto'
-          webkit-playsinline='true'>
-</video-js>
+          webkit-playsinline playsinline>
+</video>
 
 <br/>
 <button name="login" id="user01" type="button" class="layui-btn layui-btn-lg layui-btn-normal">登录user01</button>
@@ -42,11 +42,11 @@
 <br/>
 
 <input type="text" id="message" style="height:40px;width:200px;display:inline-block;">
-<button id="test" type="button" class="layui-btn layui-btn layui-btn-normal">发送消息</button>
+<button id="send" type="button" class="layui-btn layui-btn layui-btn-normal">发送消息</button>
 <br/><br/>
 <table class="layui-table" lay-even lay-skin="nob">
     <colgroup>
-        <col width="10%">
+        <col width="20%">
         <col width="20%">
         <col>
     </colgroup>
@@ -57,30 +57,34 @@
         <th>内容</th>
     </tr>
     </thead>
-    <tbody>
-    <tr>
-        <td>人生就像是一场修行</td>
-    </tr>
-    <tr>
-        <td>于千万人之中遇见你所遇见的人，于千万年之中，时间的无涯的荒野里…</td>
-    </tr>
+    <tbody id="r_message">
+
     </tbody>
 </table>
-<div>
-    收到消息：<div id="r_message"></div>
-    <p>123</p>
-    <p>123</p>
-</div>
+
 <script>
     $(document).ready(function () {
-        $("#test").click(function () {
+        $("#send").click(function () {
             send('401:' + $("#message").val(),0)
+            $("#message").val("");
         });
     });
 
 </script>
 
+
 <script>
+    // 计算时间
+    function timestampToTime(timestamp) {
+        var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1):date.getMonth()+1) + '-';
+        var D = (date.getDate()< 10 ? '0'+date.getDate():date.getDate())+ ' ';
+        var h = (date.getHours() < 10 ? '0'+date.getHours():date.getHours())+ ':';
+        var m = (date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()) + ':';
+        var s = date.getSeconds() < 10 ? '0'+date.getSeconds():date.getSeconds();
+        return h+m+s;
+    }
 
     const myvideo = videojs('my_video');
 
@@ -284,6 +288,12 @@
                 break
             case '401':
                 layer.msg(message.from + '说:' + message.payload.text.substr(4))
+                let r_message = '<tr>' +
+                    '<td>'+ message.from +'</td>' +
+                    '<td>' + timestampToTime(message.time) +'</td>' +
+                    '<td>' + message.payload.text.substr(4)+  '</td>' +
+                    '</tr>'
+                $("#r_message").prepend(r_message)
         }
 
         console.log(message.payload.text) // 文本消息内容
